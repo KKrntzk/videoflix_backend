@@ -190,3 +190,6 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
+
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL", default="http://127.0.0.1:5500")
