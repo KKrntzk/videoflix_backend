@@ -13,7 +13,16 @@ class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["email", "password", "confirmed_password"]
-        extra_kwargs = {"password": {"write_only": True}}
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "email": {"validators": []},
+        }
+
+    def validate_email(self, value):
+        """Rejects duplicate emails without revealing that they exist."""
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("Please check your input and try again.")
+        return value
 
     def validate(self, attrs):
         if attrs["password"] != attrs["confirmed_password"]:
