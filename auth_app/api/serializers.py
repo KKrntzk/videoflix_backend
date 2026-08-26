@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 
 User = get_user_model()
 
@@ -52,4 +53,25 @@ class LoginSerializer(serializers.Serializer):
                 {"detail": "Please check your input and try again."}
             )
         attrs["user"] = user
+        return attrs
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    """Validates the email address for a password reset request."""
+
+    email = serializers.EmailField()
+
+
+class PasswordConfirmSerializer(serializers.Serializer):
+    """Validates the new password and its confirmation."""
+
+    new_password = serializers.CharField(write_only=True)
+    confirm_password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        if attrs["new_password"] != attrs["confirm_password"]:
+            raise serializers.ValidationError(
+                {"error": "Please check your input and try again."}
+            )
+        validate_password(attrs["new_password"])
         return attrs

@@ -4,6 +4,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from .tokens import account_activation_token
 from django.conf import settings
+from django.contrib.auth.tokens import default_token_generator
 
 
 def build_activation_link(user, base_url):
@@ -32,3 +33,10 @@ def set_auth_cookie(response, name, value):
         samesite=settings.SIMPLE_JWT["AUTH_COOKIE_SAMESITE"],
     )
     return response
+
+
+def build_password_reset_link(user, base_url):
+    """Builds the frontend password reset link for a given user."""
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    return f"{base_url}/pages/auth/confirm_password.html?uid={uid}&token={token}"

@@ -16,6 +16,15 @@ from .serializers import LoginSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.exceptions import TokenError
 
+from django.contrib.auth.tokens import default_token_generator
+
+from ..tasks import send_password_reset_email
+from ..utils import build_password_reset_link
+from .serializers import PasswordConfirmSerializer, PasswordResetSerializer
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
 
 class RegistrationView(APIView):
     """Creates a new inactive user and queues the activation email."""
@@ -121,3 +130,42 @@ class CookieTokenRefreshView(APIView):
             )
         response = Response({"detail": "Token refreshed", "access": access})
         return set_auth_cookie(response, "access_token", access)
+
+
+class PasswordResetView(APIView):
+    """Sends a reset link without revealing whether the account exists."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self._enqueue_reset_email(serializer.validated_data["email"])
+        return Response({"detail": "An email has been sent to reset your password."})
+
+    def _enqueue_reset_email(self, email):
+        """Queues the reset email only if the account exists."""
+        user = User.objects.filter(email=email).first()
+        if user is None:
+            return
+        link = build_password_reset_link(user, settings.FRONTEND_URL)
+        django_rq.get_queue("default").enqueue(send_password_reset_email, email, link)
+
+
+class PasswordConfirmView(APIView):
+    """Sets a new password after validating the emailed token."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request, uidb64, token):
+        serializer = PasswordConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_user_from_uidb64(uidb64)
+        if user is None or not default_token_generator.check_token(user, token):
+            return Response(
+                {"detail": "Invalid or expired link."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        user.set_password(serializer.validated_data["new_password"])
+        user.save()
+        return Response({"detail": "Your Password has been successfully reset."})
