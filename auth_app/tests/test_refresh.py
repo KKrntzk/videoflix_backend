@@ -77,9 +77,9 @@ class LogoutRefreshTest(APITestCase):
         self.assertNotEqual(response.cookies["access_token"].value, "")
 
     def test_refresh_without_cookie(self):
-        """A missing refresh cookie is rejected with a 401."""
+        """A missing refresh cookie is rejected with a 400."""
         response = self.client.post(self.refresh_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_refresh_with_invalid_token(self):
         """An invalid refresh cookie is rejected with a 401."""
