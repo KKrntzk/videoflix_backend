@@ -96,12 +96,26 @@ class LoginView(APIView):
 class LogoutView(APIView):
     """Blacklists the refresh token and clears the auth cookies."""
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request):
+        refresh_token = request.COOKIES.get("refresh_token")
+        if refresh_token is None:
+            return Response(
+                {"detail": "Refresh token not found."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return self._blacklist_and_clear(refresh_token)
+
+    def _blacklist_and_clear(self, refresh_token):
+        """Invalidates the token and removes both auth cookies."""
+        try:
+            RefreshToken(refresh_token).blacklist()
+        except TokenError:
+            pass
         response = Response(
             {
-                "detail": "Log-Out successfully! All Tokens will be deleted. Refresh token is now invalid."
+                "detail": "Logout successful! All tokens will be deleted. Refresh token is now invalid."
             }
         )
         response.delete_cookie("access_token")

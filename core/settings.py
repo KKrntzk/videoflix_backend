@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_rq",
     "auth_app",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 MIDDLEWARE = [
@@ -199,6 +200,8 @@ FRONTEND_URL = os.environ.get("FRONTEND_URL", default="http://127.0.0.1:5500")
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
     "AUTH_COOKIE": "access_token",
     "AUTH_COOKIE_REFRESH": "refresh_token",
     "AUTH_COOKIE_SECURE": False,

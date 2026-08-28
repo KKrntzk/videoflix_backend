@@ -44,14 +44,23 @@ class LogoutRefreshTest(APITestCase):
         self.assertEqual(response.cookies["refresh_token"].value, "")
 
     def test_logout_without_cookies(self):
-        """Logging out without cookies is rejected with a 401."""
+        """Logging out without a refresh cookie is rejected with a 400."""
         response = self.client.post(self.logout_url)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_logout_with_invalid_token(self):
-        """An invalid access token cookie is rejected with a 401."""
-        self.client.cookies["access_token"] = "invalid"
+        """An invalid refresh cookie still clears the session cleanly."""
+        self.client.cookies["refresh_token"] = "invalid"
         response = self.client.post(self.logout_url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_logout_blacklists_refresh_token(self):
+        """The refresh token cannot be used again after logging out."""
+        self.login()
+        refresh_token = self.client.cookies["refresh_token"].value
+        self.client.post(self.logout_url)
+        self.client.cookies["refresh_token"] = refresh_token
+        response = self.client.post(self.refresh_url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_refresh_success(self):
