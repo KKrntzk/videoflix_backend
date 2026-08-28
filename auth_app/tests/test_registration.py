@@ -18,6 +18,11 @@ class RegistrationViewTest(APITestCase):
             "confirmed_password": "securepassword123",
         }
 
+    def test_registration_returns_activation_token(self):
+        """The response includes the activation token for reference."""
+        response = self.client.post(self.url, self.valid_payload)
+        self.assertIn("token", response.data)
+
     def test_registration_success(self):
         """Valid data creates a user and returns 201."""
         response = self.client.post(self.url, self.valid_payload)

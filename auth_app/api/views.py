@@ -35,16 +35,20 @@ class RegistrationView(APIView):
         serializer = RegistrationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        self._enqueue_activation_email(user)
+        token = self._enqueue_activation_email(user)
         return Response(
-            {"user": {"id": user.id, "email": user.email}},
+            {
+                "user": {"id": user.id, "email": user.email},
+                "token": token,
+            },
             status=status.HTTP_201_CREATED,
         )
 
     def _enqueue_activation_email(self, user):
-        """Queues the activation email for background delivery."""
+        """Queues the activation email and returns the activation token."""
         link = build_activation_link(user, settings.FRONTEND_URL)
         django_rq.get_queue("default").enqueue(send_activation_email, user.email, link)
+        return account_activation_token.make_token(user)
 
 
 class ActivationView(APIView):
