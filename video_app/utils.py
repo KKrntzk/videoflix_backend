@@ -11,8 +11,8 @@ RESOLUTIONS = {
 
 
 def build_thumbnail_path(video_id):
-    """Returns the absolute path where a video's thumbnail is stored."""
-    return Path(settings.MEDIA_ROOT) / "thumbnails" / f"{video_id}.jpg"
+    """Returns the temporary path where a thumbnail is generated."""
+    return Path(settings.MEDIA_ROOT) / "tmp" / f"{video_id}.jpg"
 
 
 def extract_thumbnail(source_path, target_path):
