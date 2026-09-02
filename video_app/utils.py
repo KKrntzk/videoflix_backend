@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+import shutil
 
 from django.conf import settings
 
@@ -81,3 +82,16 @@ def convert_to_hls(source_path, video_id, resolution):
     size = RESOLUTIONS[resolution].replace("x", ":")
     cmd = build_hls_command(source_path, target_dir, size)
     subprocess.run(cmd, capture_output=True, check=True)
+
+
+def build_video_dir(video_id):
+    """Returns the directory holding all HLS renditions of a video."""
+    return Path(settings.MEDIA_ROOT) / "videos" / str(video_id)
+
+
+def delete_video_files(video):
+    """Removes the original file, thumbnail and all HLS directories."""
+    for field in (video.video_file, video.thumbnail):
+        if field:
+            Path(field.path).unlink(missing_ok=True)
+    shutil.rmtree(build_video_dir(video.id), ignore_errors=True)
