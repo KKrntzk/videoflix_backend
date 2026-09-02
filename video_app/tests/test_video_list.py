@@ -1,4 +1,8 @@
+import shutil
+import tempfile
+
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -7,9 +11,18 @@ from video_app.models import Video
 
 User = get_user_model()
 
+MEDIA_ROOT = tempfile.mkdtemp()
 
+
+@override_settings(MEDIA_ROOT=MEDIA_ROOT)
 class VideoListViewTest(APITestCase):
     """Tests for GET /api/video/."""
+
+    @classmethod
+    def tearDownClass(cls):
+        """Removes the temporary media directory after all tests."""
+        shutil.rmtree(MEDIA_ROOT, ignore_errors=True)
+        super().tearDownClass()
 
     def setUp(self):
         """Create an active user and two videos to list."""

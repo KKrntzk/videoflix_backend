@@ -95,3 +95,13 @@ def delete_video_files(video):
         if field:
             Path(field.path).unlink(missing_ok=True)
     shutil.rmtree(build_video_dir(video.id), ignore_errors=True)
+
+
+def build_manifest_path(video_id, resolution):
+    """Returns the path to one resolution's HLS manifest."""
+    return build_hls_dir(video_id, resolution) / "index.m3u8"
+
+
+def build_segment_path(video_id, resolution, segment):
+    """Returns the path to a single HLS segment file."""
+    return build_hls_dir(video_id, resolution) / segment
