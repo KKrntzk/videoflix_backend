@@ -1,7 +1,6 @@
-from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 
 User = get_user_model()
 
@@ -26,6 +25,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
+        """Ensures both password fields match."""
         if attrs["password"] != attrs["confirmed_password"]:
             raise serializers.ValidationError(
                 {"error": "Please check your input and try again."}
@@ -33,6 +33,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        """Creates the user with the email doubling as username."""
         validated_data.pop("confirmed_password")
         email = validated_data["email"]
         return User.objects.create_user(
@@ -47,6 +48,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
+        """Authenticates the credentials and attaches the user."""
         user = authenticate(username=attrs["email"], password=attrs["password"])
         if user is None:
             raise serializers.ValidationError(
@@ -69,6 +71,7 @@ class PasswordConfirmSerializer(serializers.Serializer):
     confirm_password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
+        """Ensures both passwords match and meet Django's requirements."""
         if attrs["new_password"] != attrs["confirm_password"]:
             raise serializers.ValidationError(
                 {"error": "Please check your input and try again."}

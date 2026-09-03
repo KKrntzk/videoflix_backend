@@ -1,13 +1,13 @@
 from django.urls import path
 
 from .views import (
-    RegistrationView,
     ActivationView,
+    CookieTokenRefreshView,
     LoginView,
     LogoutView,
-    CookieTokenRefreshView,
-    PasswordResetView,
     PasswordConfirmView,
+    PasswordResetView,
+    RegistrationView,
 )
 
 urlpatterns = [

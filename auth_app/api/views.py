@@ -1,27 +1,28 @@
 import django_rq
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
-from ..tasks import send_activation_email
-from ..tokens import account_activation_token
-from ..utils import build_activation_link, get_user_from_uidb64
-from .serializers import RegistrationSerializer
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from ..utils import set_auth_cookie
-from .serializers import LoginSerializer
-from rest_framework.permissions import IsAuthenticated
-from rest_framework_simplejwt.exceptions import TokenError
-
-from django.contrib.auth.tokens import default_token_generator
-
-from ..tasks import send_password_reset_email
-from ..utils import build_password_reset_link
-from .serializers import PasswordConfirmSerializer, PasswordResetSerializer
-from django.contrib.auth import get_user_model
+from ..tasks import send_activation_email, send_password_reset_email
+from ..tokens import account_activation_token
+from ..utils import (
+    build_activation_link,
+    build_password_reset_link,
+    get_user_from_uidb64,
+    set_auth_cookie,
+)
+from .serializers import (
+    LoginSerializer,
+    PasswordConfirmSerializer,
+    PasswordResetSerializer,
+    RegistrationSerializer,
+)
 
 User = get_user_model()
 
