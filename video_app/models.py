@@ -20,6 +20,8 @@ class Video(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        verbose_name = "Video"
+        verbose_name_plural = "Videos"
         ordering = ["-created_at"]
 
     def __str__(self):

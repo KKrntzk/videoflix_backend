@@ -1,6 +1,6 @@
+import shutil
 import subprocess
 from pathlib import Path
-import shutil
 
 from django.conf import settings
 

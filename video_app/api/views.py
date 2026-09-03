@@ -1,13 +1,11 @@
+from django.http import FileResponse, Http404
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
-
-from ..models import Video
-from .serializers import VideoListSerializer
-
-from django.http import FileResponse, Http404
 from rest_framework.views import APIView
 
+from ..models import Video
 from ..utils import RESOLUTIONS, build_manifest_path, build_segment_path
+from .serializers import VideoListSerializer
 
 
 class VideoListView(ListAPIView):

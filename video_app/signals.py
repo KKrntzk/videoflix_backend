@@ -1,13 +1,9 @@
 import django_rq
-from django.db.models.signals import post_save
+from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 
 from .models import Video
 from .tasks import create_hls_rendition, create_thumbnail
-from .utils import RESOLUTIONS
-
-from django.db.models.signals import post_delete, post_save
-
 from .utils import RESOLUTIONS, delete_video_files
 
 
