@@ -23,7 +23,7 @@ The API covers user registration with email verification, JWT authentication via
 - **Authentication:** JWT (SimpleJWT) stored in HttpOnly cookies, with token blacklisting on logout
 - **Custom User Model:** Email is the login field; accounts stay inactive until verified by email
 - **Email:** Activation and password reset mails with responsive HTML templates, sent asynchronously
-- **Background Tasks:** Django RQ with Redis as the broker
+- **Background Tasks:** Django RQ with Redis as the broker, split across priority queues
 - **Video Processing:** FFmpeg generates a thumbnail and HLS renditions in 480p, 720p and 1080p
 - **Streaming:** HLS manifests (`.m3u8`) and segments (`.ts`) served through authenticated endpoints
 - **Caching:** Redis as a main-memory caching layer
@@ -68,7 +68,7 @@ Open the newly created `.env` file and set the variables described in the sectio
 docker compose up --build
 ```
 
-The first build takes a few minutes. On startup the entrypoint automatically waits for PostgreSQL, runs `collectstatic`, applies migrations, creates the superuser from your `.env`, and starts both Gunicorn and the RQ worker.
+The first build takes a few minutes. On startup the entrypoint automatically waits for PostgreSQL, runs `collectstatic`, applies migrations, creates the superuser from your `.env`, and starts Gunicorn along with two RQ workers.
 
 The API will be available at: `http://localhost:8000/`
 
@@ -207,7 +207,7 @@ Several decisions in this project deviate from the most obvious approach. They a
 
 **One job per resolution.** Video conversion is split into four separate jobs instead of one. This keeps every job well below the queue's 900 second timeout, even for longer videos.
 
-**All jobs run on the `default` queue.** The provided Docker setup starts exactly one worker listening on `default`, so additional queues would never be processed. With higher load, separating short tasks like email delivery onto their own queue with its own worker would prevent them from waiting behind long-running video conversions.
+**Jobs are split across priority queues.** Email delivery runs on `high`, video conversion on `low`. Two workers are started: one listening only on `high`, the other on `default` and `low`. Without this separation a running conversion would block activation and password reset mails until it finishes.
 
 **HLS files are served through Django.** The frontend's player sends credentials with every segment request, so the files cannot be served by a static file server. Both streaming endpoints validate the requested resolution and file extension before touching the filesystem, which prevents path traversal.
 
