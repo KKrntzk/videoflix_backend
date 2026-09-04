@@ -48,7 +48,7 @@ class RegistrationView(APIView):
     def _enqueue_activation_email(self, user):
         """Queues the activation email and returns the activation token."""
         link = build_activation_link(user, settings.FRONTEND_URL)
-        django_rq.get_queue("default").enqueue(send_activation_email, user.email, link)
+        django_rq.get_queue("high").enqueue(send_activation_email, user.email, link)
         return account_activation_token.make_token(user)
 
 
@@ -168,7 +168,7 @@ class PasswordResetView(APIView):
         if user is None:
             return
         link = build_password_reset_link(user, settings.FRONTEND_URL)
-        django_rq.get_queue("default").enqueue(send_password_reset_email, email, link)
+        django_rq.get_queue("high").enqueue(send_password_reset_email, email, link)
 
 
 class PasswordConfirmView(APIView):

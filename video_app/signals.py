@@ -12,7 +12,7 @@ def enqueue_video_processing(sender, instance, created, **kwargs):
     """Queues thumbnail and HLS jobs whenever a new video is uploaded."""
     if not created:
         return
-    queue = django_rq.get_queue("default")
+    queue = django_rq.get_queue("low")
     queue.enqueue(create_thumbnail, instance.id)
     for resolution in RESOLUTIONS:
         queue.enqueue(create_hls_rendition, instance.id, resolution)
