@@ -6,6 +6,17 @@ The API covers user registration with email verification, JWT authentication via
 
 ---
 
+## Table of Contents
+
+- [Features & Tech Stack](#features--tech-stack)
+- [Local Development Setup](#local-development-setup)
+- [Environment Variables](#environment-variables)
+- [Running Tests](#running-tests)
+- [API Endpoints](#api-endpoints-documentation)
+- [Project Structure](#project-structure)
+- [Implementation Notes](#implementation-notes)
+- [Credits](#credits)
+
 ## Features & Tech Stack
 
 - **Framework:** Django & Django REST Framework (DRF)
@@ -73,7 +84,13 @@ Videos are uploaded through the Django admin. Once saved, four background jobs a
 
 ### 6. Connect the frontend
 
-The frontend is provided separately by the Developer Akademie and is not part of this repository. Open its `index.html` with the VS Code Live Server extension. It expects the backend at `http://127.0.0.1:8000/api/`.
+The frontend is provided by the Developer Akademie and is not part of this repository. Clone it separately:
+
+```bash
+git clone https://github.com/Developer-Akademie-Backendkurs/project.Videoflix
+```
+
+Open its `index.html` with the VS Code Live Server extension. It expects the backend at `http://127.0.0.1:8000/api/`.
 
 If your Live Server runs on a port other than `5500`, add that origin to `CORS_ALLOWED_ORIGINS` in `core/settings.py`.
 
@@ -206,4 +223,4 @@ Several decisions in this project deviate from the most obvious approach. They a
 
 ## Credits
 
-The frontend used to test this backend was provided by the Developer Akademie and is not part of this repository.
+The frontend used to test this backend was provided by the Developer Akademie and is not part of this repository: https://github.com/Developer-Akademie-Backendkurs/project.Videoflix
