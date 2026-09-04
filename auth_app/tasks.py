@@ -32,7 +32,7 @@ def send_password_reset_email(user_email, reset_link):
     send_html_email(
         subject="Reset your Password",
         template="emails/password_reset_email.html",
-        context={"reset_link": reset_link},
+        context={"user_email": user_email, "reset_link": reset_link},
         recipient=user_email,
         fallback_text=f"Reset your password: {reset_link}",
     )
